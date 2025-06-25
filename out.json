@@ -1,0 +1,61 @@
+
+[
+  {
+    "id": 1,
+    "name": "Deluxe Houseboat",
+    "location": "Alapuzha",
+    "amenities": ["Wi-Fi", "Comfortable Beds","Air Conditioning","Entertainment"],
+    "rating": 4.9
+  },
+  {
+    "id": 2,
+    "name": "Premium Houseboat",
+    "location": "Alapuzha",
+    "amenities": ["Food and Beverage","Gourmet Meal","Entertainment","TV and Music System","Wi-Fi"],
+    "rating": 4.8
+  },
+  {
+    "id": 3,
+    "name": "Luxury Houseboat",
+    "location": "Alapuzha",
+    "amenities": ["Wi-Fi", "Food and Beverage","Gourmet Meal", "Entertainment", "TV and Music System","Air Conditioning"],
+    "rating": 4.9
+  },
+  {
+    "id": 4,
+    "name": "Houseboat for Honeymoon",
+    "location": "Alapuzha",
+    "amenities": ["Air Conditioning","Wi-Fi","flower-decorated bed","Candle light Dinner","Sun deck or upper deck"],
+    "rating": 4.8
+  },
+  {
+    "id": 5,
+    "name": "Houseboat for Seminars and meetings",
+    "location": "Alapuzha",
+    "amenities": ["Spacious conference hall or upper deck","Wifi","Audio-Visual (AV) setup","Full air-conditioning in conference area "],
+    "rating":4.8
+  },
+  {
+    "id": 6,
+    "name": "Houseboat for GetTogether",
+    "location": "Alapuzha",
+    "amenities": ["Air Conditioning","Wi-Fi","Entertainment","Food and Beverage","Gourmet Meal"],
+    "rating": 4.8
+  },
+  {
+    "id":7,
+    "name": "Houseboat for Family",
+    "location": "Alapuzha",
+    "amenities": ["Air Conditioning","Wi-Fi","Entertainment","Food and Beverage","Gourmet Meal"],
+    "rating": 4.8
+  },
+  {
+    "id": 8,
+    "name": "Houseboat for Birthday and Other Functions",
+    "location": "Alapuzha",
+    "amenities": ["Air Conditioning","Wi-Fi","Entertainment","Food and Beverage","Gourmet Meal"],
+    "rating": 4.8
+  }
+]
+  
+

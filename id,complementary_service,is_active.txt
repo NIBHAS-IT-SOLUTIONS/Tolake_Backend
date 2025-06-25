@@ -1,0 +1,9 @@
+id,complementary_service,is_active
+1,Cannoeing,1
+2,Kayaking,1
+3,Shikkara Cruise,1
+4,Village Walk,1
+5,Fishing,1
+6,Local Food Explore,1
+7,Pickup And Drop,1
+8,Preparation Classes,1

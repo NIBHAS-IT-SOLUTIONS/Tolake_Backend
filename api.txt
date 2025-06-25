@@ -1,0 +1,37 @@
+GET /api/boats: Retrieve a list of available houseboats.
+
+GET /api/boats/{id}: Get details of a specific houseboat.
+
+POST /api/bookings: Create a new booking.
+
+GET /api/bookings/{id}: Retrieve booking details.
+
+PUT /api/bookings/{id}: Update booking information.
+
+DELETE /api/bookings/{id}: Cancel a booking.
+
+ 
+ 1.Api for listing all services-http://127.0.0.1:8000/houseboat/Services
+   method = GET
+ 2.Api for listing all houseboats=http://127.0.0.1:8000/houseboat
+   method = GET
+ 3.Api for create new booking=http://127.0.0.1:8000/bookings
+   method = POST
+ 4.Api for retrieving booking details=http://127.0.0.1:8000/bookings/{id}
+   method = GET
+ 5.Api for getting specific houseboat detail=http://127.0.0.1:8000/houseboat/{id}
+    method=GET
+ 6.Api For cancelling houseboat bookings=http://127.0.0.1:8000/houseboat/bookings/{id}
+    method=DELETE
+7. Api For Update booking =http://127.0.0.1:8000/houseboat/bookings/{id}
+    method =PUT
+    
+
+
+{
+  {"refresh":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc0OTcxMjk3MSwiaWF0IjoxNzQ5NjI2NTcxLCJqdGkiOiJhNWIxNzAyNTg1Yzc0YzdjYTQ3YzZiNGZkYmM2MzA2OSIsInVzZXJfaWQiOjF9.x9kl8PQKiWo2JWP5ZQyPHezQNktn3FswTYRmQ01tSuI",
+  "access":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5NjI2ODcxLCJpYXQiOjE3NDk2MjY1NzEsImp0aSI6IjdiMjZhMWY0NGZkYzRhYzk4NzU5NjNhOTQzMTFiNzNkIiwidXNlcl9pZCI6MX0.nulAnqwlkYZdD9d5F3Wqh8Bk4unh9ejXBTIW_CewhO4"}
+}
+
+
+
