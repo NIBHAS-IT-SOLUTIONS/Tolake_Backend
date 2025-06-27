@@ -42,14 +42,29 @@ class ReviewViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
+
+        houseboat = serializer.validated_data['houseboat']
+        email = serializer.validated_data.get('email', None)
+
+        # Check for duplicate review by same email on same houseboat
+        if email and Review.objects.filter(houseboat=houseboat, email=email).exists():
+            raise serializer.ValidationError("You have already reviewed this houseboat.")
+
         if self.request.user.is_authenticated:
-            serializer.save(user=self.request.user)
+            serializer.save(
+                name=self.request.user.get_full_name() or self.request.user.username,
+                email=self.request.user.email
+            )
+        else:
+            serializer.save()
 
 
 class ComplementaryServiceViewSet(ReadOnlyModelViewSet):
     queryset = ComplementaryService.objects.filter(is_active=True)
     serializer_class = ComplementaryServiceSerializer
     permission_classes = [AllowAny]
+
+
 
 
 class BookingViewSet(ModelViewSet):

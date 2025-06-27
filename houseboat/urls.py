@@ -8,6 +8,8 @@ from houseboat.views import (HouseboatViewSet,ServiceViewSet,PackageViewSet,Comp
     contact_success_view,
     check_availability,
 )
+from django.views.decorators.csrf import csrf_exempt
+
 
 # ✅ Create a single router instance
 router = DefaultRouter()
@@ -21,13 +23,31 @@ router.register('Bookings', BookingViewSet)
 router.register('Contact-inquiries', ContactInquiryViewSet)
 router.register('Reviews', ReviewViewSet)
 
+booking_create_view = csrf_exempt(BookingViewSet.as_view({
+    'post': 'create'
+}))
+contact_create_view = csrf_exempt(ContactInquiryViewSet.as_view({
+    'post': 'create'
+}))
+booking_form_view = csrf_exempt(booking_create_view)
+contact_form_view = csrf_exempt(contact_create_view)
+booking_success_view = csrf_exempt(BookingViewSet.as_view({
+    'get': 'success'
+}))
+contact_success_view = csrf_exempt(ContactInquiryViewSet.as_view({
+    'get': 'success'
+}))
+check_availability = csrf_exempt(HouseboatViewSet.as_view({
+    'get': 'check_availability'
+}))
+
 # Main URL patterns
 urlpatterns = [
     # Include all API endpoints
     path('', include(router.urls)),
 
     #  Booking form endpoints
-    path('booking/', booking_form_view, name='booking_form'),
+    path('booking/',booking_form_view , name='booking_form'),
     path('booking-success/', booking_success_view, name='booking_success'),
 
     #  Contact form endpoints

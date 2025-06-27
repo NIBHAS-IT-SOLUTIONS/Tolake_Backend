@@ -28,7 +28,6 @@ class ComplementaryServiceSerializer(serializers.ModelSerializer):
 class HouseboatSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='name', read_only=True)
     image = serializers.ImageField()
-
     complementary_services = serializers.SlugRelatedField(
         many=True,
         queryset=ComplementaryService.objects.all(),
@@ -40,7 +39,6 @@ class HouseboatSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'houseboat_name',
-            'name',
             'slug',
             'image',
             'capacity',
@@ -159,29 +157,31 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='houseboat.name', read_only=True)
-    user_name = serializers.CharField(source='user.username', read_only=True)
+    user_name = serializers.CharField(source='user', read_only=True)
 
     houseboat = serializers.SlugRelatedField(
         queryset=Houseboat.objects.all(),
-        slug_field='name'
+        slug_field='slug'
     )
     user = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field='username'
+        read_only=True,
+        slug_field='user_name'
     )
 
     class Meta:
         model = Review
         fields = [
-            'id',
-            'user', 'user_name',
+            
+            'user','user_name',
             'houseboat', 'houseboat_name',
             'rating',
             'comment',
             'created_at',
-            'updated_at'
+            'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['user_name', 'houseboat_name', 'created_at', 'updated_at']
+    
+
 
 
 class SeasonalPriceSerializer(serializers.ModelSerializer):

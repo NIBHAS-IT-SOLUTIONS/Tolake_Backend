@@ -145,15 +145,16 @@ class Booking(models.Model):
 
 
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    name = models.CharField(max_length=100,default='Anonymous')   
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE)
+    email=models.EmailField(null=True,blank=True)
     rating = models.PositiveSmallIntegerField()
     comment = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Review by {self.user.username} - {self.rating}★"
+        return f"Review by {self.name} - {self.rating}stars for {self.houseboat.name}"
 
     class Meta:
         ordering = ['-created_at']
