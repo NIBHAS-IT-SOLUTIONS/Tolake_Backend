@@ -1,4 +1,5 @@
 from pathlib import Path
+import mimetypes
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,17 +41,18 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = False  # Disable this for production
 CORS_ALLOWED_ORIGINS = [
     "https://tolake.in",  # ✅ Allow only your WordPress site
-     "https://nibhas.pythonanywhere.com",
+    "https://www.tolake.in",
+    "https://nibhas.pythonanywhere.com",
 ]
 
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "PUT",
-    "PATCH",
-    "DELETE",
-    "OPTIONS",
-]
+# CORS_ALLOW_METHODS = [
+#     "GET",
+#     "POST",
+#     "PUT",
+#     "PATCH",
+#     "DELETE",
+#     "OPTIONS",
+# ]
 
 # REST framework
 REST_FRAMEWORK = {
@@ -123,4 +125,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ✅ Email settings for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@example.com'
-ADMIN_EMAIL = 'admin@example.com'
+ADMIN_EMAIL = 'admin@tolake.in'
+# ---------------- JS MIME Fix ---------------- #
+mimetypes.add_type("application/javascript", ".js", True)

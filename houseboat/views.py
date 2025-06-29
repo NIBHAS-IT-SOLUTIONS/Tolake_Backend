@@ -92,7 +92,6 @@ class BookingViewSet(ModelViewSet):
 
         headers = self.get_success_headers(serializer.data)
 
-        # Send email to admin
         try:
             send_mail(
                 'New Houseboat Booking',
@@ -104,7 +103,6 @@ class BookingViewSet(ModelViewSet):
         except Exception as e:
             print(f"Admin email sending failed: {e}")
 
-        # Send confirmation to user
         if booking.user and booking.user.email:
             try:
                 send_mail(

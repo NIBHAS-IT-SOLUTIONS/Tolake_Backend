@@ -1,13 +1,16 @@
-# tolake/urls.py
-
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
+from django.views.static import serve
 
-from houseboat.views import booking_success_view
+from houseboat.views import (
+    booking_success_view,
+    contact_success_view,
+    houseboats_embed_view
+)
 
 # Simple welcome page
 def home_view(request):
@@ -26,8 +29,18 @@ urlpatterns = [
     path('houseboat/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('houseboat/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Booking success page (if used in WordPress or redirect)
+    # Booking and contact success pages
     path('booking-success/', booking_success_view, name='root_booking_success'),
+    path('contact-success/', contact_success_view, name='root_contact_success'),
+
+    # Embedded houseboats view for WordPress iframe
+    path('houseboat/houseboats_embed/', houseboats_embed_view, name='houseboats_embed'),
+
+    # Serve favicon from staticfiles (place favicon.ico inside /static)
+    re_path(r'^favicon\.ico$', serve, {
+        'path': 'favicon.ico',
+        'document_root': settings.STATIC_ROOT,
+    }),
 ]
 
 # Serve media files in development
