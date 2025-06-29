@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet 
-# from houseboat.views import booking_success_view, contact_success_view, contact_form_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
@@ -10,11 +9,18 @@ from django.conf import settings
 from django.db.models import Q
 from datetime import datetime
 
-from .models import  Houseboat, Service, Packages, Review,ComplementaryService, ContactInquiry, Booking, FAQ
+from .models import (
+    Houseboat, Service, Packages, Review, ComplementaryService,
+    ContactInquiry, Booking, FAQ
+)
 
-from .serializers import  HouseboatSerializer, ServiceSerializer, PackageSerializer,ReviewSerializer, ComplementaryServiceSerializer, ContactInquirySerializer, BookingSerializer, FAQSerializer
+from .serializers import (
+    HouseboatSerializer, ServiceSerializer, PackageSerializer,
+    ReviewSerializer, ComplementaryServiceSerializer,
+    ContactInquirySerializer, BookingSerializer, FAQSerializer
+)
+
 from .forms import BookingForm, ContactInquiryForm
-
 
 # -------------------- API ViewSets -------------------- #
 
@@ -42,11 +48,9 @@ class ReviewViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-
         houseboat = serializer.validated_data['houseboat']
         email = serializer.validated_data.get('email', None)
 
-        # Check for duplicate review by same email on same houseboat
         if email and Review.objects.filter(houseboat=houseboat, email=email).exists():
             raise serializer.ValidationError("You have already reviewed this houseboat.")
 
@@ -65,13 +69,11 @@ class ComplementaryServiceViewSet(ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
 
 
-
-
 class BookingViewSet(ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthentication] 
+    authentication_classes = [TokenAuthentication]
 
     def create(self, request, *args, **kwargs):
         package_name = request.data.get('package_name')
@@ -94,7 +96,8 @@ class BookingViewSet(ModelViewSet):
         try:
             send_mail(
                 'New Houseboat Booking',
-                f'Booking from user_name {booking.user.username if booking.user else "Anonymous"} for houseboat_name {booking.houseboat.name}.',
+                f'Booking from user_name {booking.user.username if booking.user else "Anonymous"} '
+                f'for houseboat_name {booking.houseboat.name}.',
                 settings.DEFAULT_FROM_EMAIL,
                 [settings.ADMIN_EMAIL]
             )
@@ -145,10 +148,15 @@ class FaqViewSet(ModelViewSet):
     serializer_class = FAQSerializer
 
     def get_permissions(self):
-        if self.request.method in ['GET','POST', 'PUT', 'PATCH', 'DELETE']:
+        if self.request.method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
             return [IsAdminUser()]
         return [AllowAny()]
 
+# -------------------- HTML View: Houseboats Embed -------------------- #
+
+def houseboats_embed_view(request):
+    houseboats = Houseboat.objects.filter(is_available=True)
+    return render(request, 'houseboat/houseboats_embed.html', {'houseboats': houseboats})
 
 # -------------------- Booking Form Views -------------------- #
 
@@ -157,12 +165,7 @@ def booking_form_view(request):
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
-
-            if booking.package and booking.package.Price:
-                booking.total_price = booking.package.Price
-            else:
-                booking.total_price = 0
-
+            booking.total_price = booking.package.Price if booking.package and booking.package.Price else 0
             booking.save()
             return redirect('booking_success')
     else:
@@ -172,7 +175,6 @@ def booking_form_view(request):
 
 def booking_success_view(request):
     return render(request, 'houseboat/booking_success.html')
-
 
 # -------------------- Contact Inquiry Form Views -------------------- #
 
@@ -196,7 +198,6 @@ def contact_form_view(request):
                 )
             except Exception as e:
                 print(f"Email sending error in contact form: {e}")
-
             return redirect('contact_success')
     else:
         form = ContactInquiryForm()
@@ -206,8 +207,7 @@ def contact_form_view(request):
 def contact_success_view(request):
     return render(request, 'houseboat/contact_success.html')
 
-
-# -------------------- Booking Availability Check -------------------- #
+# -------------------- Availability Checker -------------------- #
 
 @api_view(['GET'])
 def check_availability(request):
@@ -224,7 +224,7 @@ def check_availability(request):
         if check_out_date <= check_in_date:
             return Response({'error': 'Check-out must be after check-in'}, status=400)
     except ValueError:
-        return Response({'error': 'Invalid date format. Use ISO format (YYYY-MM-DD).'}, status=400)
+        return Response({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=400)
 
     try:
         houseboat = Houseboat.objects.get(name=houseboat_name)

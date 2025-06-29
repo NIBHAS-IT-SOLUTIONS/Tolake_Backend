@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Houseboats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 300px;
+            overflow: hidden;
+        }
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .card-content {
+            padding: 15px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #333;
+        }
+        .card-text {
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .price {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Available Houseboats</h1>
+
+<div class="card-container">
+    {% for houseboat in houseboats %}
+        <div class="card">
+            <img src="{{ houseboat.image.url }}" alt="{{ houseboat.name }}">
+            <div class="card-content">
+                <h3 class="card-title">{{ houseboat.name }}</h3>
+                <p class="card-text"><strong>Location:</strong> {{ houseboat.location }}</p>
+                <p class="card-text"><strong>Bedrooms:</strong> {{ houseboat.bedrooms }}</p>
+                <p class="card-text"><strong>Amenities:</strong> {{ houseboat.amenities }}</p>
+                <p class="card-text price">₹ {{ houseboat.price_per_day }} / day</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>No houseboats available.</p>
+    {% endfor %}
+</div>
+
+</body>
+</html>

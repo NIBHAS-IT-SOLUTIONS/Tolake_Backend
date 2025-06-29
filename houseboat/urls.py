@@ -1,20 +1,25 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from houseboat.views import (HouseboatViewSet,ServiceViewSet,PackageViewSet,ComplementaryServiceViewSet,ContactInquiryViewSet,BookingViewSet,
+from houseboat.views import (
+    HouseboatViewSet,
+    ServiceViewSet,
+    PackageViewSet,
+    ComplementaryServiceViewSet,
+    ContactInquiryViewSet,
+    BookingViewSet,
     ReviewViewSet,
     booking_form_view,
     booking_success_view,
     contact_form_view,
     contact_success_view,
     check_availability,
+    houseboats_embed_view  # ✅ Include this for the HTML view
 )
+
 from django.views.decorators.csrf import csrf_exempt
 
-
-# ✅ Create a single router instance
+# ✅ Create router and register viewsets
 router = DefaultRouter()
-
-# ✅ Register all API ViewSets
 router.register('Houseboats', HouseboatViewSet)
 router.register('services', ServiceViewSet)
 router.register('Packages', PackageViewSet)
@@ -23,37 +28,20 @@ router.register('Bookings', BookingViewSet)
 router.register('Contact-inquiries', ContactInquiryViewSet)
 router.register('Reviews', ReviewViewSet)
 
-booking_create_view = csrf_exempt(BookingViewSet.as_view({
-    'post': 'create'
-}))
-contact_create_view = csrf_exempt(ContactInquiryViewSet.as_view({
-    'post': 'create'
-}))
-booking_form_view = csrf_exempt(booking_create_view)
-contact_form_view = csrf_exempt(contact_create_view)
-booking_success_view = csrf_exempt(BookingViewSet.as_view({
-    'get': 'success'
-}))
-contact_success_view = csrf_exempt(ContactInquiryViewSet.as_view({
-    'get': 'success'
-}))
-check_availability = csrf_exempt(HouseboatViewSet.as_view({
-    'get': 'check_availability'
-}))
-
-# Main URL patterns
+# ✅ Main URL patterns
 urlpatterns = [
-    # Include all API endpoints
+    # Include API endpoints from router
     path('', include(router.urls)),
 
-    #  Booking form endpoints
-    path('booking/',booking_form_view , name='booking_form'),
+    # Booking and Contact Form views (if used separately)
+    path('booking/', csrf_exempt(booking_form_view), name='booking_form'),
     path('booking-success/', booking_success_view, name='booking_success'),
-
-    #  Contact form endpoints
-    path('contact/', contact_form_view, name='contact_form'),
+    path('contact/', csrf_exempt(contact_form_view), name='contact_form'),
     path('contact-success/', contact_success_view, name='contact_success'),
 
-    #  Availability checking endpoint
+    # Custom availability checker
     path('check-availability/', check_availability, name='check_availability'),
+
+    # ✅ HTML card view for embedding in WordPress
+    path('houseboats_embed/', houseboats_embed_view, name='houseboats_embed'),
 ]

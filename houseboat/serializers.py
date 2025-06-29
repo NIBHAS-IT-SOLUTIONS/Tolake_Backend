@@ -95,8 +95,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='houseboat.name', read_only=True)
-    service_name = serializers.CharField(source='service.service', read_only=True)
-    package_name = serializers.CharField(source='package.package', read_only=True)
+    service_name = serializers.CharField(source='Service.service', read_only=True)
+    package_name = serializers.CharField(source='Package.package', read_only=True)
     user_name = serializers.CharField(source='user.username', read_only=True)
 
     houseboat = serializers.SlugRelatedField(
@@ -115,7 +115,7 @@ class BookingSerializer(serializers.ModelSerializer):
     )
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='username'
+        slug_field='username',
     )
 
     complementary_services = serializers.SlugRelatedField(
@@ -157,7 +157,7 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='houseboat.name', read_only=True)
-    user_name = serializers.CharField(source='user', read_only=True)
+    user_name = serializers.CharField(source='User', read_only=True)
 
     houseboat = serializers.SlugRelatedField(
         queryset=Houseboat.objects.all(),
