@@ -40,7 +40,7 @@ urlpatterns = [
     path('contact-success/', contact_success_view, name='contact_success'),
 
     # AJAX/JS availability check
-    path('check-availability/', check_availability, name='check_availability'),
+    path('check-availability/', check_availability, name='check_availability'),it
 
     # Iframe-based WordPress embed
     path('houseboats_embed/', houseboats_embed_view, name='houseboats_embed'),

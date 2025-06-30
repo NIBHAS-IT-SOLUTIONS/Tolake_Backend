@@ -154,7 +154,7 @@ class FaqViewSet(ModelViewSet):
 
 def houseboats_embed_view(request):
     houseboats = Houseboat.objects.filter(is_available=True)
-    return render(request, 'houseboat/houseboats_embed.html', {'houseboats': houseboats})
+    return render(request, 'houseboat/houseboats_embeded.html', {'houseboats': houseboats})
 
 # -------------------- Booking Form Views -------------------- #
 
