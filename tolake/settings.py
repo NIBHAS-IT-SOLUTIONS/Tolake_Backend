@@ -119,47 +119,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"   # Used in collectstatic
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-# Templates directory
-TEMPLATES_DIR = BASE_DIR / 'templates'
-# Ensure the templates directory exists
-if not TEMPLATES_DIR.exists():
-    os.makedirs(TEMPLATES_DIR)
-# Ensure the static directory exists
-if not (BASE_DIR / 'static').exists():
-    os.makedirs(BASE_DIR / 'static')
-# Ensure the media directory exists
-if not MEDIA_ROOT.exists():
-    os.makedirs(MEDIA_ROOT)
-# Ensure the staticfiles directory exists
-if not STATIC_ROOT.exists():
-    os.makedirs(STATIC_ROOT)
-# Ensure the templates directory exists
-if not TEMPLATES_DIR.exists():
-    os.makedirs(TEMPLATES_DIR)
-# Static files storage
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-# Media files storage
-MEDIAFILES_STORAGE = 'django.core.files.storage.FileSystemStorage'
-# Session settings
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default session engine
-# CSRF settings
-CSRF_COOKIE_SECURE = True  # Use secure cookies for CSRF in production
-CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF cookie
-CSRF_TRUSTED_ORIGINS = [
-    "https://tolake.in",
-    "https://www.tolake.in",
-]
-# Security settings
-SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filtering
-SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent content type sniffing
-SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
-SECURE_HSTS_SECONDS = 3600  # Enable HTTP Strict Transport Security for 1
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
-SECURE_HSTS_PRELOAD = True  # Preload HSTS in browsers
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'  # Referrer policy
-# Session settings
-SESSION_COOKIE_SECURE = True  # Use secure cookies for sessions in production
-SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+
 
 # Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -170,3 +130,4 @@ DEFAULT_FROM_EMAIL = 'noreply@example.com'
 ADMIN_EMAIL = 'admin@tolake.in'
 # ---------------- JS MIME Fix ---------------- #
 mimetypes.add_type("application/javascript", ".js", True)
+
