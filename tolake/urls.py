@@ -34,7 +34,7 @@ urlpatterns = [
     path('contact-success/', contact_success_view, name='root_contact_success'),
 
     # Embedded houseboats view
-    path('houseboat/houseboats_embed/', houseboats_embed_view, name='houseboats_embed'),
+    path('houseboat/houseboats_embeded/', houseboats_embed_view, name='houseboats_embed'),
 
     # Serve favicon from staticfiles
     re_path(r'^favicon\.ico$', serve, {
