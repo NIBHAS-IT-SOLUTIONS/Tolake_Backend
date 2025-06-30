@@ -1,13 +1,14 @@
 from pathlib import Path
 import mimetypes
+import os
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = 'django-insecure-4)pss#u+j-$&@d1y8^q_@pkgl6-u%y1jp-=47kfk)0ak=$x5)*'
-DEBUG = True
-ALLOWED_HOSTS = ['*']  # Update to ['tolake.in'] in production
+DEBUG = False
+ALLOWED_HOSTS = ['tolake.in']  # Update to ['tolake.in'] in production
 
 # Installed apps
 INSTALLED_APPS = [
