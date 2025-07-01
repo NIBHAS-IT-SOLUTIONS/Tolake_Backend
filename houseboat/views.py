@@ -158,18 +158,39 @@ def houseboats_embed_view(request):
 
 # -------------------- Booking Form Views -------------------- #
 
+
 def booking_form_view(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
-            booking.total_price = booking.package.Price if booking.package and booking.package.Price else 0
-            booking.save()
-            return redirect('booking_success')
+
+            # --- Debugging package related issues ---
+            # Add print statements to see the values
+            print(f"Booking package before save: {booking.package}")
+            if booking.package:
+                print(f"Booking package price: {booking.package.Price}")
+            else:
+                print("Booking.package is None or not set.")
+
+            booking.total_price = booking.package.Price if booking.package and hasattr(booking.package, 'Price') else 0
+            # --- End debugging ---
+
+            try:
+                booking.save()
+                return redirect('booking_success')
+            except Exception as e:
+                # Catch any database save errors and log them or display them
+                print(f"Error saving booking: {e}")
+                # You might want to add a message to the user here
+                form.add_error(None, f"An unexpected error occurred during saving: {e}")
+        else:
+            # Form is NOT valid, print errors for debugging (and display them in template)
+            print("Form errors:", form.errors)
     else:
         form = BookingForm()
-    return render(request, 'houseboat/booking_form.html', {'form': form})
 
+    return render(request, 'houseboat/booking_form.html', {'form': form})
 
 def booking_success_view(request):
     return render(request, 'houseboat/booking_success.html')
