@@ -159,33 +159,49 @@ def houseboats_embed_view(request):
 # -------------------- Booking Form Views -------------------- #
 
 
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from .forms import BookingForm
+
+User = get_user_model()
+
 def booking_form_view(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
 
-            # --- Debugging package related issues ---
-            # Add print statements to see the values
+            # ✅ Handle authenticated or guest user
+            if request.user.is_authenticated:
+                booking.user = request.user
+            else:
+                # Use a dummy user for guest
+                try:
+                    booking.user = User.objects.get(username='guest_user')
+                except User.DoesNotExist:
+                    booking.user = User.objects.create_user(
+                        username='guest_user',
+                        email='guest@example.com',
+                        password='guestpassword123'
+                    )
+
+            # ✅ Debugging package-related issues
             print(f"Booking package before save: {booking.package}")
-            if booking.package:
+            if booking.package and hasattr(booking.package, 'Price'):
+                booking.total_price = booking.package.Price
                 print(f"Booking package price: {booking.package.Price}")
             else:
+                booking.total_price = 0
                 print("Booking.package is None or not set.")
-
-            booking.total_price = booking.package.Price if booking.package and hasattr(booking.package, 'Price') else 0
-            # --- End debugging ---
 
             try:
                 booking.save()
+                form.save_m2m()  # In case you use ManyToMany fields like complementary_services
                 return redirect('booking_success')
             except Exception as e:
-                # Catch any database save errors and log them or display them
                 print(f"Error saving booking: {e}")
-                # You might want to add a message to the user here
                 form.add_error(None, f"An unexpected error occurred during saving: {e}")
         else:
-            # Form is NOT valid, print errors for debugging (and display them in template)
             print("Form errors:", form.errors)
     else:
         form = BookingForm()
