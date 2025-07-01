@@ -4,11 +4,17 @@ from django.utils import timezone
 
 
 class BookingForm(forms.ModelForm):
+    complementary_services = forms.ModelMultipleChoiceField(
+        queryset=ComplementaryService.objects.filter(is_active=True),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': 6}),
+        required=False
+    )
+
     class Meta:
         model = Booking
         fields = [
             'name', 'email', 'address', 'phone', 'houseboat',
-            'category', 'Complementary services:',
+            'category', 'complementary_services',
             'check_in', 'check_out', 'total_guests'
         ]
         widgets = {
@@ -18,7 +24,6 @@ class BookingForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'placeholder': 'Your Phone Number', 'class': 'form-control'}),
             'houseboat': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(choices=Houseboat.CATEGORY_CHOICES, attrs={'class': 'form-control'}),
-            'Complementary_services':forms.SelectMultiple(attrs={'class': 'form-control', 'size': 6}),
             'check_in': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'check_out': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'total_guests': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Total Guests', 'class': 'form-control'}),
