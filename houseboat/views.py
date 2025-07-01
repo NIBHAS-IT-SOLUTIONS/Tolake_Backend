@@ -61,7 +61,7 @@ class ReviewViewSet(ModelViewSet):
         else:
             serializer.save()
 
-class ComplementaryServiceViewSet(ReadOnlyModelViewSet):
+class ComplementaryServiceViewSet(ModelViewSet):
     queryset = ComplementaryService.objects.filter(is_active=True)
     serializer_class = ComplementaryServiceSerializer
     permission_classes = [AllowAny]
