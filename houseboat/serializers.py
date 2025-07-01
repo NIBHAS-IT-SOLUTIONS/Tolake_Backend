@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ComplementaryServiceSerializer(serializers.ModelSerializer):
+    complementary_service = serializers.CharField(source='complementary_service', read_only=True)
     class Meta:
         model = ComplementaryService
         fields = ['id', 'complementary_service', 'is_active']
