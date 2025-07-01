@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import get_user_model
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, AllowAny
@@ -9,7 +10,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-
+from .forms import BookingForm
 from .models import (
     Houseboat, Service, Packages, Review, ComplementaryService,
     ContactInquiry, Booking, FAQ
@@ -160,55 +161,50 @@ def houseboats_embed_view(request):
 # -------------------- Booking Form Views -------------------- #
 
 
-from django.contrib.auth import get_user_model
-from django.shortcuts import render, redirect
-from .forms import BookingForm
+
+
+
 
 User = get_user_model()
-@csrf_exempt
+@csrf_exempt  # ✅ CSRF is now disabled for this view
 def booking_form_view(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
 
-            # ✅ Handle authenticated or guest user
+            # ✅ Handle dummy user
             if request.user.is_authenticated:
                 booking.user = request.user
             else:
-                # Use a dummy user for guest
                 try:
                     booking.user = User.objects.get(username='guest_user')
                 except User.DoesNotExist:
                     booking.user = User.objects.create_user(
                         username='guest_user',
                         email='guest@example.com',
-                        password='guestpassword123'
+                        password='guest123'
                     )
 
-            # ✅ Debugging package-related issues
-            print(f"Booking package before save: {booking.package}")
+            # ✅ Set total_price if package exists
             if booking.package and hasattr(booking.package, 'Price'):
                 booking.total_price = booking.package.Price
-                print(f"Booking package price: {booking.package.Price}")
             else:
                 booking.total_price = 0
-                print("Booking.package is None or not set.")
 
             try:
                 booking.save()
-                form.save_m2m()  # In case you use ManyToMany fields like complementary_services
-                return redirect('booking_success')
+                form.save_m2m()
+                return redirect('booking_success')  # or return JsonResponse
             except Exception as e:
                 print(f"Error saving booking: {e}")
-                form.add_error(None, f"An unexpected error occurred during saving: {e}")
+                form.add_error(None, f"Error: {e}")
         else:
             print("Form errors:", form.errors)
     else:
         form = BookingForm()
 
     return render(request, 'houseboat/booking_form.html', {'form': form})
-
 def booking_success_view(request):
     return render(request, 'houseboat/booking_success.html')
 
