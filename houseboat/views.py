@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet 
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, AllowAny
 from rest_framework.authentication import TokenAuthentication
@@ -10,19 +10,19 @@ from django.conf import settings
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from .forms import BookingForm
+
+from .forms import BookingForm, ContactInquiryForm
 from .models import (
     Houseboat, Service, Packages, Review, ComplementaryService,
     ContactInquiry, Booking, FAQ
 )
-
 from .serializers import (
     HouseboatSerializer, ServiceSerializer, PackageSerializer,
     ReviewSerializer, ComplementaryServiceSerializer,
     ContactInquirySerializer, BookingSerializer, FAQSerializer
 )
 
-from .forms import BookingForm, ContactInquiryForm
+User = get_user_model()
 
 # -------------------- API ViewSets -------------------- #
 
@@ -31,18 +31,15 @@ class HouseboatViewSet(ModelViewSet):
     serializer_class = HouseboatSerializer
     permission_classes = [AllowAny]
 
-
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [AllowAny]
 
-
 class PackageViewSet(ModelViewSet):
     queryset = Packages.objects.all()
     serializer_class = PackageSerializer
     permission_classes = [AllowAny]
-
 
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
@@ -51,7 +48,7 @@ class ReviewViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         houseboat = serializer.validated_data['houseboat']
-        email = serializer.validated_data.get('email', None)
+        email = serializer.validated_data.get('email')
 
         if email and Review.objects.filter(houseboat=houseboat, email=email).exists():
             raise serializer.ValidationError("You have already reviewed this houseboat.")
@@ -64,12 +61,10 @@ class ReviewViewSet(ModelViewSet):
         else:
             serializer.save()
 
-
 class ComplementaryServiceViewSet(ReadOnlyModelViewSet):
     queryset = ComplementaryService.objects.filter(is_active=True)
     serializer_class = ComplementaryServiceSerializer
     permission_classes = [AllowAny]
-
 
 class BookingViewSet(ModelViewSet):
     queryset = Booking.objects.all()
@@ -97,8 +92,8 @@ class BookingViewSet(ModelViewSet):
         try:
             send_mail(
                 'New Houseboat Booking',
-                f'Booking from user_name {booking.user.username if booking.user else "Anonymous"} '
-                f'for houseboat_name {booking.houseboat.name}.',
+                f'Booking from user: {booking.user.username if booking.user else "Anonymous"} '
+                f'for houseboat: {booking.houseboat.name}.',
                 settings.DEFAULT_FROM_EMAIL,
                 [settings.ADMIN_EMAIL]
             )
@@ -117,7 +112,6 @@ class BookingViewSet(ModelViewSet):
                 print(f"User confirmation email failed: {e}")
 
         return Response(serializer.data, status=201, headers=headers)
-
 
 class ContactInquiryViewSet(ModelViewSet):
     queryset = ContactInquiry.objects.all()
@@ -142,13 +136,12 @@ class ContactInquiryViewSet(ModelViewSet):
         except Exception as e:
             print(f"Contact inquiry email failed: {e}")
 
-
 class FaqViewSet(ModelViewSet):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
 
     def get_permissions(self):
-        if self.request.method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
+        if self.request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
             return [IsAdminUser()]
         return [AllowAny()]
 
@@ -158,22 +151,16 @@ def houseboats_embed_view(request):
     houseboats = Houseboat.objects.filter(is_available=True)
     return render(request, 'houseboat/houseboats_embed.html', {'houseboats': houseboats})
 
-# -------------------- Booking Form Views -------------------- #
+# -------------------- Booking Form View -------------------- #
 
-
-
-
-
-
-User = get_user_model()
-@csrf_exempt  # ✅ CSRF is now disabled for this view
+@csrf_exempt
 def booking_form_view(request):
+    print("Booking form view hit")
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
 
-            # ✅ Handle dummy user
             if request.user.is_authenticated:
                 booking.user = request.user
             else:
@@ -186,7 +173,6 @@ def booking_form_view(request):
                         password='guest123'
                     )
 
-            # ✅ Set total_price if package exists
             if booking.package and hasattr(booking.package, 'Price'):
                 booking.total_price = booking.package.Price
             else:
@@ -195,7 +181,7 @@ def booking_form_view(request):
             try:
                 booking.save()
                 form.save_m2m()
-                return redirect('booking_success')  # or return JsonResponse
+                return redirect('booking_success')
             except Exception as e:
                 print(f"Error saving booking: {e}")
                 form.add_error(None, f"Error: {e}")
@@ -205,12 +191,15 @@ def booking_form_view(request):
         form = BookingForm()
 
     return render(request, 'houseboat/booking_form.html', {'form': form})
+
 def booking_success_view(request):
     return render(request, 'houseboat/booking_success.html')
 
-# -------------------- Contact Inquiry Form Views -------------------- #
+# -------------------- Contact Inquiry Form View -------------------- #
 
+@csrf_exempt
 def contact_form_view(request):
+    print("Contact form view hit")
     if request.method == 'POST':
         form = ContactInquiryForm(request.POST)
         if form.is_valid():
@@ -231,10 +220,11 @@ def contact_form_view(request):
             except Exception as e:
                 print(f"Email sending error in contact form: {e}")
             return redirect('contact_success')
+        else:
+            print("Form errors:", form.errors)
     else:
         form = ContactInquiryForm()
     return render(request, 'houseboat/contact_form.html', {'form': form})
-
 
 def contact_success_view(request):
     return render(request, 'houseboat/contact_success.html')
