@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 
 from .models import (
@@ -164,7 +165,7 @@ from django.shortcuts import render, redirect
 from .forms import BookingForm
 
 User = get_user_model()
-
+@csrf_exempt
 def booking_form_view(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
