@@ -18,7 +18,7 @@ class BookingForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'placeholder': 'Your Phone Number', 'class': 'form-control'}),
             'houseboat': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(choices=Houseboat.CATEGORY_CHOICES, attrs={'class': 'form-control'}),
-            'complementary_services': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'complementary_services':forms.Select(choices=ComplementaryService.objects.all().values_list('id', 'complementary_service'), attrs={'class': 'form-control', 'multiple': 'multiple'}),
             'check_in': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'check_out': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'total_guests': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Total Guests', 'class': 'form-control'}),
