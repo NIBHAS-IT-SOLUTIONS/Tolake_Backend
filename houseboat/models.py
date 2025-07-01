@@ -1,9 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 
+
+User = get_user_model()
 class ComplementaryService(models.Model):
     complementary_service = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -121,7 +123,7 @@ class Booking(models.Model):
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL,null=True,blank=True,related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='bookings')
     package = models.ForeignKey(Packages, on_delete=models.CASCADE, null=True, blank=True)
@@ -134,7 +136,7 @@ class Booking(models.Model):
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending')
 
     def clean(self):
-        if self.check_out <= self.check_in:
+        if self.check_in and self.check_out and self.check_out <=self.check_in:
             raise ValidationError("Check-out must be after check-in.")
 
     def __str__(self):
