@@ -2,22 +2,18 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-
-
+from multiselectfield import MultiSelectField
 
 User = get_user_model()
-class ComplementaryService(models.Model):
-    complementary_service = models.CharField(max_length=100, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.complementary_service
-
-    class Meta:
-        ordering = ['complementary_service']
-        verbose_name = "complementary_service"
-        verbose_name_plural = "complementary_services"
-
+# Define choices
+COMPLEMENTARY_SERVICE_CHOICES = [
+    ('wifi', 'WiFi'),
+    ('meals', 'Meals Included'),
+    ('music', 'Music System'),
+    ('guide', 'Tour Guide'),
+    ('ac', 'Air Conditioning'),
+]
 
 class Houseboat(models.Model):
     CATEGORY_CHOICES = [
@@ -39,19 +35,22 @@ class Houseboat(models.Model):
     capacity = models.PositiveIntegerField()
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
     amenities = models.CharField(max_length=500, null=True, blank=True)
-    complementary_services = models.ManyToManyField(
-        ComplementaryService, blank=True, related_name='houseboats'
+    complementary_services = MultiSelectField(
+        choices=COMPLEMENTARY_SERVICE_CHOICES,
+        max_length=100,
+        blank=True
     )
     is_available = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.name)
-            similar_slugs = Houseboat.objects.filter(slug__startswith=base_slug).count()
-            if similar_slugs:
-                self.slug = f"{base_slug}-{similar_slugs + 1}"
-            else:
-                self.slug = base_slug
+            slug = base_slug
+            counter = 1
+            while Houseboat.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -123,12 +122,16 @@ class Booking(models.Model):
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL,null=True,blank=True,related_name='bookings')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='bookings')
     package = models.ForeignKey(Packages, on_delete=models.CASCADE, null=True, blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, null=True, blank=True)
-    complementary_services = models.ManyToManyField(ComplementaryService, blank=True)
+    complementary_services = MultiSelectField(
+        choices=COMPLEMENTARY_SERVICE_CHOICES,
+        max_length=100,
+        blank=True
+    )
     check_in = models.DateField()
     check_out = models.DateField()
     total_guests = models.PositiveIntegerField()
@@ -136,7 +139,7 @@ class Booking(models.Model):
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending')
 
     def clean(self):
-        if self.check_in and self.check_out and self.check_out <=self.check_in:
+        if self.check_in and self.check_out and self.check_out <= self.check_in:
             raise ValidationError("Check-out must be after check-in.")
 
     def __str__(self):
@@ -147,16 +150,16 @@ class Booking(models.Model):
 
 
 class Review(models.Model):
-    name = models.CharField(max_length=100,default='Anonymous')   
+    name = models.CharField(max_length=100, default='Anonymous')   
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE)
-    email=models.EmailField(null=True,blank=True)
+    email = models.EmailField(null=True, blank=True)
     rating = models.PositiveSmallIntegerField()
     comment = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Review by {self.name} - {self.rating}stars for {self.houseboat.name}"
+        return f"Review by {self.name} - {self.rating} stars for {self.houseboat.name}"
 
     class Meta:
         ordering = ['-created_at']
@@ -168,6 +171,10 @@ class SeasonalPrice(models.Model):
     end_date = models.DateField()
     discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
+
+    def clean(self):
+        if self.end_date <= self.start_date:
+            raise ValidationError("End date must be after start date.")
 
     def __str__(self):
         return f"{self.houseboat.name} ({self.start_date} to {self.end_date})"

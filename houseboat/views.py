@@ -1,25 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 
 from .forms import BookingForm, ContactInquiryForm
-from .models import (
-    Houseboat, Service, Packages, Review, ComplementaryService,
-    ContactInquiry, Booking, FAQ
-)
+from .models import Houseboat, Service, Packages, Review, ContactInquiry, Booking, FAQ
 from .serializers import (
     HouseboatSerializer, ServiceSerializer, PackageSerializer,
-    ReviewSerializer, ComplementaryServiceSerializer,
-    ContactInquirySerializer, BookingSerializer, FAQSerializer
+    ReviewSerializer, ContactInquirySerializer,
+    BookingSerializer, FAQSerializer
 )
 
 User = get_user_model()
@@ -31,15 +27,18 @@ class HouseboatViewSet(ModelViewSet):
     serializer_class = HouseboatSerializer
     permission_classes = [AllowAny]
 
+
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [AllowAny]
 
+
 class PackageViewSet(ModelViewSet):
     queryset = Packages.objects.all()
     serializer_class = PackageSerializer
     permission_classes = [AllowAny]
+
 
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
@@ -61,10 +60,6 @@ class ReviewViewSet(ModelViewSet):
         else:
             serializer.save()
 
-class ComplementaryServiceViewSet(ModelViewSet):
-    queryset = ComplementaryService.objects.filter(is_active=True)
-    serializer_class = ComplementaryServiceSerializer
-    permission_classes = [AllowAny]
 
 class BookingViewSet(ModelViewSet):
     queryset = Booking.objects.all()
@@ -74,7 +69,7 @@ class BookingViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         package_name = request.data.get('package_name')
-        package = Packages.objects.filter(name=package_name).first() if package_name else None
+        package = Packages.objects.filter(package=package_name).first() if package_name else None
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -84,7 +79,7 @@ class BookingViewSet(ModelViewSet):
         booking = serializer.save(
             user=user,
             package=package,
-            total_price=package.Price if package else 0
+            total_price=package.price if package else 0
         )
 
         headers = self.get_success_headers(serializer.data)
@@ -113,6 +108,7 @@ class BookingViewSet(ModelViewSet):
 
         return Response(serializer.data, status=201, headers=headers)
 
+
 class ContactInquiryViewSet(ModelViewSet):
     queryset = ContactInquiry.objects.all()
     serializer_class = ContactInquirySerializer
@@ -136,6 +132,7 @@ class ContactInquiryViewSet(ModelViewSet):
         except Exception as e:
             print(f"Contact inquiry email failed: {e}")
 
+
 class FaqViewSet(ModelViewSet):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
@@ -145,13 +142,12 @@ class FaqViewSet(ModelViewSet):
             return [IsAdminUser()]
         return [AllowAny()]
 
-# -------------------- HTML View: Houseboats Embed -------------------- #
+# -------------------- HTML Views -------------------- #
 
 def houseboats_embed_view(request):
     houseboats = Houseboat.objects.filter(is_available=True)
     return render(request, 'houseboat/houseboats_embed.html', {'houseboats': houseboats})
 
-# -------------------- Booking Form View -------------------- #
 
 @csrf_exempt
 def booking_form_view(request):
@@ -160,7 +156,6 @@ def booking_form_view(request):
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
-
             if request.user.is_authenticated:
                 booking.user = request.user
             else:
@@ -172,12 +167,7 @@ def booking_form_view(request):
                         email='guest@example.com',
                         password='guest123'
                     )
-
-            if booking.package and hasattr(booking.package, 'Price'):
-                booking.total_price = booking.package.Price
-            else:
-                booking.total_price = 0
-
+            booking.total_price = booking.package.price if booking.package else 0
             try:
                 booking.save()
                 form.save_m2m()
@@ -192,10 +182,10 @@ def booking_form_view(request):
 
     return render(request, 'houseboat/booking_form.html', {'form': form})
 
+
 def booking_success_view(request):
     return render(request, 'houseboat/booking_success.html')
 
-# -------------------- Contact Inquiry Form View -------------------- #
 
 @csrf_exempt
 def contact_form_view(request):
@@ -226,10 +216,10 @@ def contact_form_view(request):
         form = ContactInquiryForm()
     return render(request, 'houseboat/contact_form.html', {'form': form})
 
+
 def contact_success_view(request):
     return render(request, 'houseboat/contact_success.html')
 
-# -------------------- Availability Checker -------------------- #
 
 @api_view(['GET'])
 def check_availability(request):

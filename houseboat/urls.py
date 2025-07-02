@@ -4,7 +4,6 @@ from houseboat.views import (
     HouseboatViewSet,
     ServiceViewSet,
     PackageViewSet,
-    ComplementaryServiceViewSet,
     ContactInquiryViewSet,
     BookingViewSet,
     ReviewViewSet,
@@ -13,7 +12,7 @@ from houseboat.views import (
     contact_form_view,
     contact_success_view,
     check_availability,
-    houseboats_embed_view  # ✅ HTML for WordPress
+    houseboats_embed_view
 )
 
 from django.views.decorators.csrf import csrf_exempt
@@ -23,7 +22,6 @@ router = DefaultRouter()
 router.register('Houseboats', HouseboatViewSet)
 router.register('services', ServiceViewSet)
 router.register('Packages', PackageViewSet)
-router.register('Complementary-services', ComplementaryServiceViewSet, basename='complementaryservice')
 router.register('Bookings', BookingViewSet)
 router.register('Contact-inquiries', ContactInquiryViewSet)
 router.register('Reviews', ReviewViewSet)
@@ -39,9 +37,9 @@ urlpatterns = [
     path('contact/', csrf_exempt(contact_form_view), name='contact_form'),
     path('contact-success/', contact_success_view, name='contact_success'),
 
-    # AJAX/JS availability check
+    # Availability checker API
     path('check-availability/', check_availability, name='check_availability'),
 
-    # Iframe-based WordPress embed
+    # HTML-based iframe view for WordPress embedding
     path('houseboats_embed/', houseboats_embed_view, name='houseboats_embed'),
 ]

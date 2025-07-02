@@ -1,12 +1,12 @@
 from django.contrib import admin
-from .models import Houseboat, Service, Booking, Packages, ComplementaryService
+from .models import Houseboat, Service, Booking, Packages
 
 @admin.register(Houseboat)
 class HouseboatAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'capacity', 'is_available')  # changed from 'houseboat'
+    list_display = ('name', 'location', 'capacity', 'is_available')
     list_filter = ('is_available',)
-    search_fields = ('name', 'location')  # changed from 'houseboat'
-    ordering = ['name']  # changed from 'houseboat'
+    search_fields = ('name', 'location')
+    ordering = ['name']
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
@@ -27,10 +27,3 @@ class PackagesAdmin(admin.ModelAdmin):
     list_display = ('package', 'houseboat', 'price', 'max_guests', 'duration')
     search_fields = ('package', 'description')
     ordering = ['package']
-
-@admin.register(ComplementaryService)
-class ComplementaryServiceAdmin(admin.ModelAdmin):
-    list_display = ('complementary_service', 'is_active')
-    list_filter = ('complementary_service',)
-    search_fields = ('complementary_service',)
-    ordering = ['complementary_service']

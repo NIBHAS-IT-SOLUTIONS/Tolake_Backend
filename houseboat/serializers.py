@@ -7,10 +7,12 @@ from .models import (
     Packages,
     Review,
     SeasonalPrice,
-    ComplementaryService,
     ContactInquiry,
     FAQ,
 )
+
+# Choices reused from model
+from .models import COMPLEMENTARY_SERVICE_CHOICES
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,20 +21,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ComplementaryServiceSerializer(serializers.ModelSerializer):
-    complementary_service = serializers.CharField(source='complementary_service', read_only=True)
-    class Meta:
-        model = ComplementaryService
-        fields = ['id', 'complementary_service', 'is_active']
-
-
 class HouseboatSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='name', read_only=True)
     image = serializers.ImageField()
-    complementary_services = serializers.SlugRelatedField(
-        many=True,
-        queryset=ComplementaryService.objects.all(),
-        slug_field='complementary_service'
+
+    complementary_services = serializers.ListField(
+        child=serializers.ChoiceField(choices=COMPLEMENTARY_SERVICE_CHOICES),
+        required=False
     )
 
     class Meta:
@@ -96,8 +91,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='houseboat.name', read_only=True)
-    service_name = serializers.CharField(source='Service.service', read_only=True)
-    package_name = serializers.CharField(source='Package.package', read_only=True)
+    service_name = serializers.CharField(source='service.service', read_only=True)
+    package_name = serializers.CharField(source='package.package', read_only=True)
     user_name = serializers.CharField(source='user.username', read_only=True)
 
     houseboat = serializers.SlugRelatedField(
@@ -119,10 +114,8 @@ class BookingSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
 
-    complementary_services = serializers.SlugRelatedField(
-        many=True,
-        queryset=ComplementaryService.objects.all(),
-        slug_field='complementary_service',
+    complementary_services = serializers.ListField(
+        child=serializers.ChoiceField(choices=COMPLEMENTARY_SERVICE_CHOICES),
         required=False
     )
 
@@ -158,31 +151,24 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='houseboat.name', read_only=True)
-    user_name = serializers.CharField(source='User', read_only=True)
 
     houseboat = serializers.SlugRelatedField(
         queryset=Houseboat.objects.all(),
         slug_field='slug'
     )
-    user = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='user_name'
-    )
 
     class Meta:
         model = Review
         fields = [
-            
-            'user','user_name',
+            'name',
             'houseboat', 'houseboat_name',
             'rating',
             'comment',
+            'email',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['user_name', 'houseboat_name', 'created_at', 'updated_at']
-    
-
+        read_only_fields = ['created_at', 'updated_at']
 
 
 class SeasonalPriceSerializer(serializers.ModelSerializer):

@@ -1,12 +1,13 @@
 from django import forms
-from .models import Booking, ContactInquiry, ComplementaryService, Houseboat
+from .models import Booking, ContactInquiry, Houseboat, COMPLEMENTARY_SERVICE_CHOICES
 from django.utils import timezone
+from multiselectfield.forms.fields import MultiSelectFormField
 
 
 class BookingForm(forms.ModelForm):
-    complementary_services = forms.ModelMultipleChoiceField(
-        queryset=ComplementaryService.objects.filter(is_active=True),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': 6}),
+    complementary_services = MultiSelectFormField(
+        choices=COMPLEMENTARY_SERVICE_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         required=False
     )
 
