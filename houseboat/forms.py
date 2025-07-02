@@ -1,5 +1,5 @@
 from django import forms
-from .models import Booking, ContactInquiry, Houseboat, COMPLEMENTARY_SERVICE_CHOICES
+from .models import Booking, ContactInquiry, Houseboat, COMPLEMENTARY_SERVICE_CHOICES, CATEGORY_CHOICES
 from django.utils import timezone
 from multiselectfield.forms.fields import MultiSelectFormField
 
@@ -24,7 +24,7 @@ class BookingForm(forms.ModelForm):
             'address': forms.TextInput(attrs={'placeholder': 'Your Address', 'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'placeholder': 'Your Phone Number', 'class': 'form-control'}),
             'houseboat': forms.Select(attrs={'class': 'form-control'}),
-            'category': forms.Select(choices=Houseboat.CATEGORY_CHOICES, attrs={'class': 'form-control'}),
+            'category': forms.Select(choices=CATEGORY_CHOICES, attrs={'class': 'form-control'}),
             'check_in': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'check_out': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'total_guests': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Total Guests', 'class': 'form-control'}),

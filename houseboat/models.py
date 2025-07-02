@@ -6,7 +6,15 @@ from multiselectfield import MultiSelectField
 
 User = get_user_model()
 
-# Define choices
+# Global Choices
+CATEGORY_CHOICES = [
+    ('luxury', 'Luxury'),
+    ('deluxe', 'Deluxe'),
+    ('premium', 'Premium'),
+    ('standard', 'Standard'),
+    ('budget', 'Budget'),
+]
+
 COMPLEMENTARY_SERVICE_CHOICES = [
     ('wifi', 'WiFi'),
     ('meals', 'Meals Included'),
@@ -15,15 +23,22 @@ COMPLEMENTARY_SERVICE_CHOICES = [
     ('ac', 'Air Conditioning'),
 ]
 
-class Houseboat(models.Model):
-    CATEGORY_CHOICES = [
-        ('luxury', 'Luxury'),
-        ('deluxe', 'Deluxe'),
-        ('premium', 'Premium'),
-        ('standard', 'Standard'),
-        ('budget', 'Budget'),
-    ]
+PACKAGE_CHOICES = [
+    ('overnight', 'Overnight'),
+    ('honeymoon', 'Honeymoon'),
+    ('night_stay', 'Night Stay'),
+    ('day_cruise', 'Day Cruise'),
+    ('group', 'Group'),
+]
 
+STATUS_CHOICES = [
+    ('pending', 'Pending'),
+    ('confirmed', 'Confirmed'),
+    ('cancelled', 'Cancelled'),
+]
+
+
+class Houseboat(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
@@ -35,11 +50,7 @@ class Houseboat(models.Model):
     capacity = models.PositiveIntegerField()
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
     amenities = models.CharField(max_length=500, null=True, blank=True)
-    complementary_services = MultiSelectField(
-        choices=COMPLEMENTARY_SERVICE_CHOICES,
-        max_length=100,
-        blank=True
-    )
+    complementary_services = MultiSelectField(choices=COMPLEMENTARY_SERVICE_CHOICES, max_length=100, blank=True)
     is_available = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -75,14 +86,6 @@ class Service(models.Model):
 
 
 class Packages(models.Model):
-    PACKAGE_CHOICES = [
-        ('overnight', 'Overnight'),
-        ('honeymoon', 'Honeymoon'),
-        ('night_stay', 'Night Stay'),
-        ('day_cruise', 'Day Cruise'),
-        ('group', 'Group'),
-    ]
-
     package = models.CharField(max_length=100, choices=PACKAGE_CHOICES, default='day_cruise')
     slug = models.SlugField(unique=True, blank=True)
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='packages')
@@ -104,20 +107,6 @@ class Packages(models.Model):
 
 
 class Booking(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('confirmed', 'Confirmed'),
-        ('cancelled', 'Cancelled'),
-    ]
-
-    CATEGORY_CHOICES = [
-        ('luxury', 'Luxury'),
-        ('deluxe', 'Deluxe'),
-        ('premium', 'Premium'),
-        ('standard', 'Standard'),
-        ('budget', 'Budget'),
-    ]
-
     name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
@@ -127,11 +116,7 @@ class Booking(models.Model):
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='bookings')
     package = models.ForeignKey(Packages, on_delete=models.CASCADE, null=True, blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, null=True, blank=True)
-    complementary_services = MultiSelectField(
-        choices=COMPLEMENTARY_SERVICE_CHOICES,
-        max_length=100,
-        blank=True
-    )
+    complementary_services = MultiSelectField(choices=COMPLEMENTARY_SERVICE_CHOICES, max_length=100, blank=True)
     check_in = models.DateField()
     check_out = models.DateField()
     total_guests = models.PositiveIntegerField()
@@ -150,7 +135,7 @@ class Booking(models.Model):
 
 
 class Review(models.Model):
-    name = models.CharField(max_length=100, default='Anonymous')   
+    name = models.CharField(max_length=100, default='Anonymous')
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
     rating = models.PositiveSmallIntegerField()
