@@ -14,7 +14,7 @@ from houseboat.views import (
 
 # Simple welcome page
 def home_view(request):
-    return HttpResponse("✅ Welcome to the Tolake API! Visit <code>/houseboat/</code> for available endpoints.")
+    return HttpResponse(" Welcome to the Tolake ")
 
 urlpatterns = [
     path('', home_view),
