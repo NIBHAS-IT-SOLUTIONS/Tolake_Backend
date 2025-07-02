@@ -11,9 +11,6 @@ from .models import (
     FAQ,
 )
 
-# Choices reused from model
-from .models import COMPLEMENTARY_SERVICE_CHOICES
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,11 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
 class HouseboatSerializer(serializers.ModelSerializer):
     houseboat_name = serializers.CharField(source='name', read_only=True)
     image = serializers.ImageField()
-
-    complementary_services = serializers.ListField(
-        child=serializers.ChoiceField(choices=COMPLEMENTARY_SERVICE_CHOICES),
-        required=False
-    )
 
     class Meta:
         model = Houseboat
@@ -44,7 +36,6 @@ class HouseboatSerializer(serializers.ModelSerializer):
             'price_per_day',
             'category',
             'is_available',
-            'complementary_services',
             'amenities',
             'description',
         ]
@@ -114,11 +105,6 @@ class BookingSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
 
-    complementary_services = serializers.ListField(
-        child=serializers.ChoiceField(choices=COMPLEMENTARY_SERVICE_CHOICES),
-        required=False
-    )
-
     class Meta:
         model = Booking
         fields = [
@@ -131,7 +117,6 @@ class BookingSerializer(serializers.ModelSerializer):
             'total_guests', 'total_price',
             'status',
             'name', 'email', 'phone', 'address',
-            'complementary_services',
             'category'
         ]
         read_only_fields = ['id', 'total_price']

@@ -1,22 +1,14 @@
 from django import forms
-from .models import Booking, ContactInquiry, Houseboat, COMPLEMENTARY_SERVICE_CHOICES, CATEGORY_CHOICES
+from .models import Booking, ContactInquiry, Houseboat, CATEGORY_CHOICES
 from django.utils import timezone
-from multiselectfield.forms.fields import MultiSelectFormField
 
 
 class BookingForm(forms.ModelForm):
-    complementary_services = MultiSelectFormField(
-        choices=COMPLEMENTARY_SERVICE_CHOICES,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-        required=False
-    )
-
     class Meta:
         model = Booking
         fields = [
             'name', 'email', 'address', 'phone', 'houseboat',
-            'category', 'complementary_services',
-            'check_in', 'check_out', 'total_guests'
+            'category', 'check_in', 'check_out', 'total_guests'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Your Name', 'class': 'form-control'}),

@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
-from multiselectfield import MultiSelectField
 
 User = get_user_model()
 
@@ -13,14 +12,6 @@ CATEGORY_CHOICES = [
     ('premium', 'Premium'),
     ('standard', 'Standard'),
     ('budget', 'Budget'),
-]
-
-COMPLEMENTARY_SERVICE_CHOICES = [
-    ('wifi', 'WiFi'),
-    ('meals', 'Meals Included'),
-    ('music', 'Music System'),
-    ('guide', 'Tour Guide'),
-    ('ac', 'Air Conditioning'),
 ]
 
 PACKAGE_CHOICES = [
@@ -50,7 +41,6 @@ class Houseboat(models.Model):
     capacity = models.PositiveIntegerField()
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2)
     amenities = models.CharField(max_length=500, null=True, blank=True)
-    complementary_services = MultiSelectField(choices=COMPLEMENTARY_SERVICE_CHOICES, max_length=100, blank=True)
     is_available = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -116,7 +106,6 @@ class Booking(models.Model):
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='bookings')
     package = models.ForeignKey(Packages, on_delete=models.CASCADE, null=True, blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, null=True, blank=True)
-    complementary_services = MultiSelectField(choices=COMPLEMENTARY_SERVICE_CHOICES, max_length=100, blank=True)
     check_in = models.DateField()
     check_out = models.DateField()
     total_guests = models.PositiveIntegerField()
@@ -126,6 +115,8 @@ class Booking(models.Model):
     def clean(self):
         if self.check_in and self.check_out and self.check_out <= self.check_in:
             raise ValidationError("Check-out must be after check-in.")
+        if self.houseboat and self.total_guests > self.houseboat.capacity:
+            raise ValidationError("Number of guests exceeds houseboat capacity.")
 
     def __str__(self):
         return f"Booking by {self.name or self.user.username} for {self.houseboat.name}"
@@ -171,7 +162,7 @@ class SeasonalPrice(models.Model):
 class ContactInquiry(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    phone = models.PositiveIntegerField(unique=True)
+    phone = models.CharField(max_length=15)
     houseboat = models.ForeignKey(Houseboat, on_delete=models.CASCADE, related_name='inquiries')
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
